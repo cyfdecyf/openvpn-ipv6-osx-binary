@@ -7,11 +7,11 @@ Index: plugin/down-root/Makefile
  INCLUDE=-I../..
  
 -CC_FLAGS=-O2 -Wall
-+CC=gcc-4.0
-+MACOSX_DEPLOYMENT_TARGET=10.4
-+SDK=/Developer/SDKs/MacOSX10.4u.sdk
++CC=llvm-gcc-4.2
++MACOSX_DEPLOYMENT_TARGET=10.6
++SDK=/Developer/SDKs/MacOSX10.6.sdk
  
-+CC_FLAGS=-Wall -isysroot $(SDK) -Os -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET) -arch i386 -arch ppc
++CC_FLAGS=-Wall -isysroot $(SDK) -Os -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET) -arch i386
 +
  down-root.so : down-root.o
 -	gcc ${CC_FLAGS} -fPIC -shared -Wl,-soname,openvpn-down-root.so -o openvpn-down-root.so down-root.o -lc

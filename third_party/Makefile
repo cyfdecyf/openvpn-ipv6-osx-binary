@@ -1,9 +1,9 @@
 # This Makefile builds all the third_party code
 # It shouldn't be called by anything other than automated scripts
 
-CC=gcc-4.0
-MACOSX_DEPLOYMENT_TARGET=10.4
-SDKROOT=/Developer/SDKs/MacOSX10.4u.sdk
+CC=llvm-gcc-4.2
+MACOSX_DEPLOYMENT_TARGET=10.6
+SDKROOT=/Developer/SDKs/MacOSX10.6.sdk
 
 CFLAGS=-isysroot $(SDKROOT) -Os -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET)
 
@@ -43,7 +43,7 @@ openssl-patch: $(OPENSSL_BUILD_DIR)
 	fi
 
 openssl: openssl-patch
-	@for a in darwin-i386-cc darwin-ppc-cc; do\
+	@for a in darwin-i386-cc; do\
 		echo Configure OpenSSL for $$a; \
 		cd $(OPENSSL_BUILD_DIR); \
 		echo Forcefully be clean; \
@@ -56,7 +56,7 @@ openssl: openssl-patch
 		cd -; \
 	done
 	ditto -v $(BUILD_DIR)/staging/$(OPENSSL_SRC_DIR)/darwin-i386-cc/include $(OPENSSL_DEST_DIR)/include/i386
-	ditto -v $(BUILD_DIR)/staging/$(OPENSSL_SRC_DIR)/darwin-ppc-cc/include $(OPENSSL_DEST_DIR)/include/ppc
+	#ditto -v $(BUILD_DIR)/staging/$(OPENSSL_SRC_DIR)/darwin-ppc-cc/include $(OPENSSL_DEST_DIR)/include/ppc
 	mkdir -p $(OPENSSL_DEST_DIR)/lib; \
 	for t in $(OPENSSL_TARGET_FILES); do \
 		lipo $(BUILD_DIR)/staging/$(OPENSSL_SRC_DIR)/darwin*/lib/$$(basename $$t) -create -output $$t; \
@@ -64,7 +64,7 @@ openssl: openssl-patch
 	rm -rf $(BUILD_DIR)/staging/$(OPENSSL_SRC_DIR)/darwin*
 	
 pkcs11-helper::
-	@for a in ppc i386; do \
+	@for a in i386; do \
 		echo Configure PKCS11-Helper for $$a; \
 		cd $(PKCS11_DIR); \
 		echo Forcefully be clean; \
@@ -85,7 +85,7 @@ pkcs11-helper-clean:
 	rm -rf $(PKCS11_DIR)/staging*
 
 lzo::
-	@for a in ppc i386; do \
+	@for a in i386; do \
 		echo Configure LZO for $$a; \
 		cd $(LZO_DIR); \
 		echo Forcefully be clean; \
@@ -108,7 +108,7 @@ lzo-clean:
 	rm -rf $(LZO_DIR)/staging*
 
 openvpn-patch:
-	@cd openvpn; \
+	@cd openvpn-ipv6; \
 	for patchfile in ../patches/openvpn/*.diff; do \
 		patch -p0 -N --dry-run -i $$patchfile > /dev/null; \
 		if [ $$? == 0 ]; then \
@@ -116,29 +116,29 @@ openvpn-patch:
 		fi \
 	done
 
-openvpn: lzo openssl pkcs11-helper openvpn-patch
-	for a in ppc i386; do \
+openvpn: lzo pkcs11-helper openvpn-patch
+	for a in i386; do \
 		echo Configure OpenVPN for $$a; \
-		cd openvpn/; \
+		cd openvpn-ipv6/; \
 		echo Forcefully be clean; \
 		$(MAKE) clean; \
 		autoreconf -i -v; \
-		CC=$(CC) CFLAGS="$(CFLAGS) -arch $$a" ./configure --with-lzo-headers=../$(LZO_DIR)/staging/include --with-lzo-lib=../$(LZO_DIR)/staging/lib --with-pkcs11-helper-headers=../$(PKCS11_DIR)/staging/include --with-pkcs11-helper-lib=../$(PKCS11_DIR)/staging/lib --with-ssl-headers=$(OPENSSL_DEST_DIR)/include/$$a --with-ssl-lib=$(OPENSSL_DEST_DIR)/lib --disable-dependency-tracking; \
+		CC=$(CC) CFLAGS="$(CFLAGS) -arch $$a" ./configure --with-lzo-headers=../$(LZO_DIR)/staging/include --with-lzo-lib=../$(LZO_DIR)/staging/lib --with-pkcs11-helper-headers=../$(PKCS11_DIR)/staging/include --with-pkcs11-helper-lib=../$(PKCS11_DIR)/staging/lib --with-ssl-headers=/usr/local/Cellar/openssl/0.9.8r/include --with-ssl-lib=/usr/local/Cellar/openssl/0.9.8r/lib --disable-dependency-tracking; \
 		echo Build OpenVPN; \
-		$(MAKE) LIBS="$(OPENSSL_TARGET_FILES) -lpkcs11-helper -llzo2 -lz"; \
+		$(MAKE) LIBS="-lcrypto -lssl -lpkcs11-helper -llzo2 -lz"; \
 		mv openvpn openvpn_tblk_$$a; \
 		cd ../; \
 	done
 	
-	$(MAKE) -C openvpn/plugin/down-root
+	$(MAKE) -C openvpn-ipv6/plugin/down-root
 	
 	# Use lipo to create a universal library
-	lipo openvpn/openvpn_tblk_* -create -output openvpn/openvpn
+	lipo openvpn-ipv6/openvpn_tblk_* -create -output openvpn-ipv6/openvpn
 
 openvpn-clean:
-	$(MAKE) -C openvpn/ clean
-	$(MAKE) -C openvpn/plugin/down-root clean
-	rm -f openvpn/openvpn_tblk_*
+	$(MAKE) -C openvpn-ipv6/ clean
+	$(MAKE) -C openvpn-ipv6/plugin/down-root clean
+	rm -f openvpn-ipv6/openvpn_tblk_*
 
 .PHONY : tuntap
 

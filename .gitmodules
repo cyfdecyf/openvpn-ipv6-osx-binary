@@ -1,0 +1,3 @@
+[submodule "third_party/openvpn-ipv6"]
+	path = third_party/openvpn-ipv6
+	url = git://github.com/jjo/openvpn-ipv6.git
