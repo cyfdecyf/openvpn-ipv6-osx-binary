@@ -9,12 +9,13 @@ Then run the following command.
 git submodule update --init
 cd tunnelblick
 xcodebuild -configuration Release
-<pre>
+</pre>
 
-Modifications I've done
-=======================
+Main Modifications to upstream project
+======================================
 
 - Remove ppc target and use 10.6 SDK
 - Modify build system to use openvpn-ipv6, which is added as a git submodule
-- Apply a patch to make openvpn-ipv6 to compile on OS X.
+- Use openssl 0.9.8r, 1.0.0d can't pass openvpn's configure script
+- Apply a patch to make openvpn-ipv6 to compile on OS X
 
