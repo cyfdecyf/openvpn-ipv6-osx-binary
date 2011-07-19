@@ -1,3 +1,12 @@
+Why
+===
+
+I need ipv6, but the stock Tunnelblick does not include unofficial ipv6 enabled
+openvpn due to security reasons.
+
+This project simply uses jjo's openvpn-ipv6 to replace the openvpn used by
+Tunnelblick.
+
 How to build
 ============
 
