@@ -1,3 +1,13 @@
+**Update: I will no longer compile Tunnelblick directly with
+[openvpn-ipv6](https://github.com/jjo/openvpn-ipv6).
+Instead I will just compile openvpn-ipv6 and replace the openvpn executable
+shipped by Tunnelblick (located under `Tunnelblick.app/Contents/Resources/openvpn/openvpn-<version>`).
+This would be much easier to catch up with the new releases of Tunnelblick.**
+
+**You can download my compiled 64bit openvpn binary for OS X on
+[this github downloads page](https://github.com/cyfdecyf/openvpn-ipv6-osx-binary/downloads).
+I only use it on Lion, not sure if it works on Snow Leopard.**
+
 Why
 ===
 
